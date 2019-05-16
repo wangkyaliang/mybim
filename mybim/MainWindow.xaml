@@ -13,8 +13,8 @@
     
     <StackPanel Height="Auto">
         <!--打开按钮-->
-        <Button Command="ApplicationCommands.Open">打开</Button>
-        <TextBox Name="fileNamesTextBox" Text="(空)" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"/>
+        <Button Command="ApplicationCommands.Open" Height="30" Margin="5" FontSize="18" >打开IFC</Button>
+        <TextBox Name="fileNamesTextBox" Text="(空)" FontSize="18" Margin="5" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"/>
     </StackPanel>
     
 </Window>

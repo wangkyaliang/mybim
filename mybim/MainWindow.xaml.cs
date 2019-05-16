@@ -39,7 +39,7 @@ namespace mybim
             openFileDialog.CheckPathExists = true;
             openFileDialog.Multiselect = true;
             openFileDialog.RestoreDirectory = false;
-            //openFileDialog.DefaultExt = "ifc";
+            openFileDialog.DefaultExt = "ifc";
             //openFileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
             if (openFileDialog.ShowDialog() == false)
             {
