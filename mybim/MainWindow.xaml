@@ -32,7 +32,6 @@
             </DataGrid.Columns>
         </DataGrid>
         
-        
     </Grid>
     
 </Window>

@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 
 namespace mybim
 {
-    class Model
-    {
-    }
 
     class ClsNotifyobject : INotifyPropertyChanged
 

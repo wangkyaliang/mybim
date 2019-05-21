@@ -62,7 +62,7 @@ namespace mybim
                              }
 
                              FilePath = ifcFileName;
-                             
+
                              //获取IfcSite上的basic properties
                              IEnumerable<IIfcPropertySingleValue> properties = GetIfcSiteProperties(ifcFileName);
 
@@ -81,10 +81,6 @@ namespace mybim
                                  }
                                  //propertyListView.ItemsSource = propertyList;
                              }
-                             else
-                             {
-                                 MessageBox.Show("No IfcSite!");
-                             }
 
                              PropertyList = ifcPropertyList;
 
@@ -95,52 +91,7 @@ namespace mybim
             }
         }
 
-
-        //函数，目前无用
-        public void OpenFile(object sender, RoutedEventArgs e)
-        {
-            //打开IFC文件
-            string ifcFileName = OpenIfcFile();
-
-            if (ifcFileName == null)
-            {
-                return;
-            }
-
-            //设置Window对象的DataContext属性，以供绑定
-            ClsIfcFileName fileName = new ClsIfcFileName { FileName = ifcFileName };
-            //fileNamesTextBox.DataContext = fileName;
-
-            //获取IfcSite上的basic properties
-            var properties = GetIfcSiteProperties(ifcFileName);
-
-            if (properties != null)
-            {
-                //定义一个属性的列表,设置给listview的数据源
-                List<ClsIfcProperty> propertyList = new List<ClsIfcProperty>();
-                foreach (var property in properties)
-                {
-                    //MessageBox.Show($"Property: {property.Name}, Value: {property.NominalValue}");
-
-                    //将获取的属性添加至列表
-                    propertyList.Add(new ClsIfcProperty { PropertyName = property.Name, PropertyValue = property.NominalValue.ToString() });
-                }
-                //propertyListView.ItemsSource = propertyList;
-
-            }
-            else
-            {
-                MessageBox.Show("No IfcSite!");
-
-                //定义空列表
-                List<ClsIfcProperty> propertyList = new List<ClsIfcProperty>();
-                //propertyListView.ItemsSource = propertyList;
-            }
-
-        }
-
-
-        //打开IFC文件，返回文件路径
+        //窗口选择打开IFC文件，返回文件路径
         public string OpenIfcFile()
         {
             string fileName = null;
@@ -178,7 +129,7 @@ namespace mybim
             return fileName;
         }
 
-        //
+        //获取site的属性列表
         public IEnumerable<IIfcPropertySingleValue> GetIfcSiteProperties(string ifcFileName)
         {
             var model = IfcStore.Open(ifcFileName);
@@ -188,6 +139,7 @@ namespace mybim
 
             if (allSites.Count() == 0)
             {
+                MessageBox.Show("No IfcSite!");
                 return null;
             }
 
@@ -202,12 +154,17 @@ namespace mybim
                 .SelectMany(r => ((IIfcPropertySet)r.RelatingPropertyDefinition).HasProperties)
                 .OfType<IIfcPropertySingleValue>();
 
+            if (properties.Count() == 0)
+            {
+                MessageBox.Show("IfcSite has no property!");
+            }
+
             return properties;
 
         }
     }
 
-
+    //自定义命令
     public class MyCommand : ICommand
     {
         #region ICommand内部方法的实现
