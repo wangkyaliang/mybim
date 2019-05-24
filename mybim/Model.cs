@@ -23,7 +23,7 @@ namespace mybim
         }
 
     }
-
+    /*
     class ClsIfcFileName : ClsNotifyobject// : INotifyPropertyChanged
     {
         //IFC路径
@@ -44,7 +44,7 @@ namespace mybim
             }
         }
     }
-
+    */
     class ClsIfcProperty : ClsNotifyobject// : INotifyPropertyChanged
     {
         //IFC属性名
@@ -85,6 +85,9 @@ namespace mybim
 
         //IFC属性集
         public IIfcPropertySet PropertySet { get; set; }
+
+        //IFC属性集名
+        public string PropertySetName { get; set; }
 
     }
 }

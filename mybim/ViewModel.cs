@@ -19,10 +19,6 @@ namespace mybim
     class MainWindowViewModel : ClsNotifyobject
     {
 
-        //文件数据
-        //private string _FileText;
-        public string FileText{ get; set; }
-
         //文件模型
         public IfcStore Model { get; set; }
 
@@ -67,36 +63,21 @@ namespace mybim
                          {
 
                              //窗口选择打开IFC文件，获取返回文件路径
-                             string fileName = OpenIfcFile();
-                             if (fileName == null)
+                             //文件路径赋值给MainWindowViewModel的FilePath属性
+                             FilePath = OpenIfcFile();
+                             if (FilePath == null){ return; }
+                             
+                             //获取site的属性列表
+                             //属性列表赋值给MainWindowViewModel的PropertyList属性
+                             PropertyList = GetIfcSiteProperties(FilePath);
+                             if (PropertyList == null)
                              {
                                  return;
                              }
-
-                             //文件路径赋值给MainWindowViewModel的FilePath属性
-                             FilePath = fileName;
-
-                             //获取IfcSite上的basic properties
-                             IEnumerable<IIfcPropertySingleValue> properties = GetIfcSiteProperties(FilePath);
-
-                             //定义一个属性的列表,设置给listview的数据源
-                             List<ClsIfcProperty> propertyList = new List<ClsIfcProperty>();
-
-                             if (properties != null)
+                             else if (PropertyList.Count == 0)
                              {
-
-                                 foreach (var property in properties)
-                                 {
-                                     //MessageBox.Show($"Property: {property.Name}, Value: {property.NominalValue}");
-
-                                     //将获取的属性添加至列表
-                                     propertyList.Add(new ClsIfcProperty { PropertyName = property.Name, PropertyValue = property.NominalValue.ToString() });
-                                 }
-                                 //propertyListView.ItemsSource = propertyList;
+                                 MessageBox.Show("No property!");
                              }
-
-                             //属性列表赋值给MainWindowViewModel的PropertyList属性
-                             PropertyList = propertyList;
 
                          }
                     ));
@@ -118,47 +99,54 @@ namespace mybim
                     (
                          o =>
                          {
-
-                             if (PropertyList == null)
+                             //检查是否有模型和属性
+                             if (Model == null)
                              {
+                                 MessageBox.Show("No Model!");
                                  return;
                              }
-                             /*
-                             //test：查看ifc属性是否更改
-                             foreach (var property in PropertyList)
+                             else if (PropertyList == null)
                              {
-                                 MessageBox.Show($"Property: {property.PropertyName}, Value: {property.PropertyValue}");
+                                 MessageBox.Show("No Property!");
+                                 return;
                              }
-                             */
 
+                             //修改Model的IFC信息
                              using (Model)
                              {
                                  // open transaction for changes
-                                 using (var txn = Model.BeginTransaction("Doors modification"))
+                                 using (var txn = Model.BeginTransaction("Site modification"))
                                  {
 
-                                     //test
+                                     //遍历属性列表，根据属性集与属性名给ifc属性重新赋值
                                      foreach (var property in PropertyList)
                                      {
                                          TheSite.IsDefinedBy
+                                         .Where(r => r.RelatingPropertyDefinition!=null && r.RelatingPropertyDefinition == property.PropertySet) //属性集符合
                                          .SelectMany(r => ((IIfcPropertySet)r.RelatingPropertyDefinition).HasProperties)
                                          .OfType<IIfcPropertySingleValue>()
-                                         .Where(r => r.Name == property.PropertyName)
+                                         .Where(r => r.Name != null && r.Name == property.PropertyName) //属性名符合
                                          .First()
-                                         .NominalValue = (IfcText)property.PropertyValue;
+                                         .NominalValue = (IfcText)property.PropertyValue; //修改属性值
                                      }
                                      
                                      // commit changes
                                      txn.Commit();
                                  }
-                                 Model.SaveAs(@"D:\城建工作\BIM数字化交付平台2019\test111");
-                                
+
+                                 //打开保存窗口
+                                 string savePath = SaveIfcFile();
+                                 Model.SaveAs(savePath);
+                                 MessageBox.Show("已保存");
+                                 //更新MainWindowViewModel的FilePath属性
+                                 FilePath = savePath;
 
                              }
+                             
                          }
 
                     ));
-                       
+
                 }
                 return _CmdSaveFile;
             }
@@ -188,29 +176,41 @@ namespace mybim
             {
                 //记录选择的文件路径
                 fileName = openFileDialog.FileName;
-
-                //记录文件数据至MainWindowViewModel的FileText属性
-                FileText = File.ReadAllText(fileName);
-
-
-                //MessageBox.Show(fileText.Count().ToString());
-
-                //以备选择多个文件打开
-                //string[] ifcFiles = openFileDialog.FileNames;
-                //fileNamesTextBox.Text = "";
-                //foreach (string ifcFile in ifcFiles)
-                //{
-                //    MessageBox.Show("已选择文件:" + ifcFile, "选择文件提示");
-                //    fileNamesTextBox.Text += ifcFile+"\n";
-                //}
-
+                
             }
 
             return fileName;
         }
 
+
+        //窗口保存IFC文件，返回新的文件路径
+        public string SaveIfcFile()
+        {
+            string saveFileName = null;
+
+            Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "保存IFC文件",
+                Filter = "IFC文件(*.ifc)|*.ifc",
+                FileName = string.Empty,
+                FilterIndex = 1,
+                ValidateNames = true,
+                RestoreDirectory = false,
+                DefaultExt = "ifc"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                //记录选择的文件路径
+                saveFileName = saveFileDialog.FileName;
+                
+            }
+
+            return saveFileName;
+        }
+
         //获取site的属性列表
-        public IEnumerable<IIfcPropertySingleValue> GetIfcSiteProperties(string ifcFileName)
+        public List<ClsIfcProperty> GetIfcSiteProperties(string ifcFileName)
         {
             var model = IfcStore.Open(ifcFileName);
             
@@ -219,32 +219,54 @@ namespace mybim
 
             //获取site (using IFC4 interface of IfcSite)，赋值给MainWindowViewModel的TheSite属性
             var allSites = model.Instances.OfType<IIfcSite>();
-
             if (allSites.Count() == 0)
             {
                 MessageBox.Show("No IfcSite!");
                 return null;
             }
-
             TheSite = allSites.First();
 
-            //MessageBox.Show(theSite.ToString());
-            //MessageBox.Show($"Site ID: {theSite.GlobalId}, Name: {theSite.Name}");
+            //定义一个属性的列表,设置给listview的数据源
+            List<ClsIfcProperty> propertyList = new List<ClsIfcProperty>();
 
-            // 获取site的所有属性
-            var properties = TheSite.IsDefinedBy
+            //// 获取site的所有属性
+            //var properties = TheSite.IsDefinedBy
+            //    .Where(r => r.RelatingPropertyDefinition is IIfcPropertySet)
+            //    .SelectMany(r => ((IIfcPropertySet)r.RelatingPropertyDefinition).HasProperties)
+            //    .OfType<IIfcPropertySingleValue>();
+
+            // 获取site的所有属性集
+            var propertySets = TheSite.IsDefinedBy
                 .Where(r => r.RelatingPropertyDefinition is IIfcPropertySet)
-                .SelectMany(r => ((IIfcPropertySet)r.RelatingPropertyDefinition).HasProperties)
-                .OfType<IIfcPropertySingleValue>();
+                .Select(r => (IIfcPropertySet)r.RelatingPropertyDefinition)
+                .OfType<IIfcPropertySet>();
 
-            if (properties.Count() == 0)
+            foreach (var propertySet in propertySets)
             {
-                MessageBox.Show("IfcSite has no property!");
+                //var pSetName=propertySet.Name;
+                var ps = propertySet.HasProperties.OfType<IIfcPropertySingleValue>();
+                foreach (var p in ps)
+                {
+                    //将获取的属性添加至列表
+                    propertyList.Add(new ClsIfcProperty
+                    {
+                        PropertyName = p.Name,
+                        PropertyValue = p.NominalValue.ToString(),
+                        PropertySet = propertySet,
+                        PropertySetName= propertySet.Name
+                    });
+                }
+                
             }
 
-            return properties;
-
+            if (propertyList == null)
+            {
+                MessageBox.Show("No Property!");
+            }
+            
+            return propertyList;
         }
+        
     }
 
     //自定义命令
