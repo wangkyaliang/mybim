@@ -12,23 +12,27 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!--打开按钮-->
         <Button Grid.Row="0" Command="{Binding CmdOpenFile}" Height="30" Margin="5" FontSize="18" >打开IFC文件</Button>
+        
+        <!--保存按钮-->
+        <Button Grid.Row="1" Command="{Binding CmdSaveFile}" Height="30" Margin="5" FontSize="18" >另存为IFC文件</Button>
 
         <!--显示文件路径-->
-        <TextBox Grid.Row="1" Name="fileNamesTextBox" Text="{Binding Path=FilePath}" FontSize="18" Margin="5" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"/>
+        <TextBox Grid.Row="2" Name="fileNamesTextBox" Text="{Binding Path=FilePath}" FontSize="18" Margin="5" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"/>
 
         <!--显示IfcSite上的basic properties-->
-        <DataGrid Name="propertyListView" Grid.Row="2" AutoGenerateColumns="False"
+        <DataGrid Name="propertyListView" Grid.Row="3" AutoGenerateColumns="False"
                   VerticalGridLinesBrush="LightSteelBlue"
                   HorizontalGridLinesBrush="LightSteelBlue"
-                  ItemsSource="{Binding PropertyList}">
+                  ItemsSource="{Binding PropertyList,Mode=TwoWay}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="属性名" Width="200" Binding="{Binding Path=PropertyName}"/>
-                <DataGridTextColumn Header="属性值" Width="300" Binding="{Binding Path=PropertyValue}"/>
+                <DataGridTextColumn Header="属性名" Width="200" Binding="{Binding Path=PropertyName,Mode=TwoWay}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="属性值" Width="300" Binding="{Binding Path=PropertyValue,Mode=TwoWay}"/>
             </DataGrid.Columns>
         </DataGrid>
         

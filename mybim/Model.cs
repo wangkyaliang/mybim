@@ -5,11 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Xbim.Ifc;
+using Xbim.Ifc4.Interfaces;
+
 namespace mybim
 {
-
+    
     class ClsNotifyobject : INotifyPropertyChanged
-
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public void Notify(string propertyName)
@@ -80,6 +82,9 @@ namespace mybim
                 }
             }
         }
-        
+
+        //IFC属性集
+        public IIfcPropertySet PropertySet { get; set; }
+
     }
 }
