@@ -26,38 +26,38 @@ namespace mybim
         public IIfcSite TheSite{ get; set; }
         
         //文件路径
-        private string _FilePath;
+        private string _filePath;
         public string FilePath
         {
-            get { return _FilePath; }
+            get { return _filePath; }
             set
             {
-                _FilePath = value;
+                _filePath = value;
                 Notify("FilePath");
             }
         }
         
         //文件属性
-        private List<ClsIfcProperty> _PropertyList;
+        private List<ClsIfcProperty> _propertyList;
         public List<ClsIfcProperty> PropertyList
         {
-            get { return _PropertyList; }
+            get { return _propertyList; }
             set
             {
-                _PropertyList = value;
+                _propertyList = value;
                 Notify("PropertyList");
             }
         }
         
         //“打开”命令
-        private MyCommand _CmdOpenFile;
+        private MyCommand _cmdOpenFile;
         public MyCommand CmdOpenFile
         {
             get
             {
-                if (_CmdOpenFile == null)
+                if (_cmdOpenFile == null)
                 {
-                    _CmdOpenFile = new MyCommand(new Action<object>
+                    _cmdOpenFile = new MyCommand(new Action<object>
                     (
                          o =>
                          {
@@ -82,21 +82,20 @@ namespace mybim
                          }
                     ));
                 }
-                return _CmdOpenFile;
+                return _cmdOpenFile;
             }
         }
         
 
         //“保存”命令
-        private MyCommand _CmdSaveFile;
+        private MyCommand _cmdSaveFile;
         public MyCommand CmdSaveFile
         {
             get
             {
-                if (_CmdSaveFile == null)
+                if (_cmdSaveFile == null)
                 {
-                    _CmdSaveFile = new MyCommand(new Action<object>
-                    (
+                    _cmdSaveFile = new MyCommand(new Action<object>(
                          o =>
                          {
                              //检查是否有模型和属性
@@ -144,11 +143,10 @@ namespace mybim
                              }
                              
                          }
-
-                    ));
+                         ));
 
                 }
-                return _CmdSaveFile;
+                return _cmdSaveFile;
             }
         }
 
@@ -307,8 +305,8 @@ namespace mybim
         private Action<object> _execute;
         public MyCommand(Action<object> execute) : this(execute, null)
         {
+            
         }
-
         public MyCommand(Action<object> execute, Func<object, bool> canExecute)
         {
             _execute = execute;

@@ -23,61 +23,41 @@ namespace mybim
         }
 
     }
-    /*
-    class ClsIfcFileName : ClsNotifyobject// : INotifyPropertyChanged
-    {
-        //IFC路径
-        private string _FileName;
-        public string FileName
-        {
-            get
-            {
-                return _FileName;
-            }
-            set
-            {
-                if (value != _FileName)
-                {
-                    _FileName = value;
-                    Notify("FileName");
-                }
-            }
-        }
-    }
-    */
+    
+
     class ClsIfcProperty : ClsNotifyobject// : INotifyPropertyChanged
     {
         //IFC属性名
-        private string _PropertyName;
+        private string _propertyName;
         public string PropertyName
         {
             get
             {
-                return _PropertyName;
+                return _propertyName;
             }
             set
             {
-                if (value != _PropertyName)
+                if (value != _propertyName)
                 {
-                    _PropertyName = value;
+                    _propertyName = value;
                     Notify("PropertyName");
                 }
             }
         }
 
         //IFC属性值
-        private string _PropertyValue;
+        private string _propertyValue;
         public string PropertyValue
         {
             get
             {
-                return _PropertyValue;
+                return _propertyValue;
             }
             set
             {
-                if (value != _PropertyValue)
+                if (value != _propertyValue)
                 {
-                    _PropertyValue = value;
+                    _propertyValue = value;
                     Notify("PropertyValue");
                 }
             }
